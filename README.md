@@ -1,3 +1,18 @@
+<div align="center">
+  
+  <h1>
+    <img src="https://github.com/prem-k-r/Salesforce-Inspector-Reloaded-Plus/blob/all-in-one/addon/icon128.png" width="96" alt=""><br>
+    Salesforce Inspector Reloaded Plus
+  </h1>
+
+  [![](https://img.shields.io/badge/dynamic/json?label=edge%20add-on&prefix=v&query=%24.version&url=https%3A%2F%2Fmicrosoftedge.microsoft.com%2Faddons%2Fgetproductdetailsbycrxid%2Fobcfdpdokojfonokhalcmlopobpmiopf)](https://microsoftedge.microsoft.com/addons/detail/salesforce-inspector-relo/obcfdpdokojfonokhalcmlopobpmiopf) [![](https://img.shields.io/badge/dynamic/json?label=rating&suffix=/5&query=%24.averageRating&url=https%3A%2F%2Fmicrosoftedge.microsoft.com%2Faddons%2Fgetproductdetailsbycrxid%2Fobcfdpdokojfonokhalcmlopobpmiopf)](https://microsoftedge.microsoft.com/addons/detail/salesforce-inspector-relo/obcfdpdokojfonokhalcmlopobpmiopf) [![](https://img.shields.io/badge/dynamic/json?label=users&query=%24.activeInstallCount&url=https%3A%2F%2Fmicrosoftedge.microsoft.com%2Faddons%2Fgetproductdetailsbycrxid%2Fobcfdpdokojfonokhalcmlopobpmiopf)](https://microsoftedge.microsoft.com/addons/detail/salesforce-inspector-relo/obcfdpdokojfonokhalcmlopobpmiopf)
+
+A fork of Salesforce Inspector Reloaded with numerous bug fixes, enhancements, and improvements. 
+
+</div>
+
+<br>
+
 <img src="https://raw.githubusercontent.com/tprouvot/Salesforce-Inspector-reloaded/main/addon/icon128.png" align="right">
 
 # Salesforce Inspector Reloaded

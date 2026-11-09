@@ -446,9 +446,7 @@ class App extends React.PureComponent {
           link: {
             text: "See What's New",
             props: {
-              href:
-                "https://tprouvot.github.io/Salesforce-Inspector-reloaded/release-note/#version-"
-                + addonVersion.replace(".", ""),
+              href: "https://github.com/prem-k-r/Salesforce-Inspector-Reloaded-Plus/blob/57bd8e4539714ac3a86b0a8bb18a0f80e5f2f4a4/CHANGES.md",
               target: "_blank",
               onClick: () => this.updateReleaseNotesViewed(addonVersion),
             },
@@ -835,9 +833,7 @@ class App extends React.PureComponent {
             h(
               "a",
               {
-                href:
-                "https://tprouvot.github.io/Salesforce-Inspector-reloaded/release-note/#version-"
-                + addonVersion.replace(".", ""),
+                href: "https://github.com/prem-k-r/Salesforce-Inspector-Reloaded-Plus/blob/57bd8e4539714ac3a86b0a8bb18a0f80e5f2f4a4/CHANGES.md",
                 title: "Release note",
                 target: linkTarget,
               },
@@ -892,7 +888,7 @@ class App extends React.PureComponent {
             h(
               "a",
               {
-                href: "https://tprouvot.github.io/Salesforce-Inspector-reloaded/donate/",
+                href: "https://prem-k-r.github.io/donate.html",
                 target: linkTarget,
               },
               h(
