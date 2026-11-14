@@ -1779,9 +1779,9 @@ export class App extends React.Component {
       model.didUpdate();
     });
   }
-  onSheetChange(e) {
+  onSheetChange(val) {
     let {model} = this.props;
-    model.loadSheet(e.target.value);
+    model.loadSheet(val);
     model.didUpdate();
   }
   onFileChange(e) {
@@ -2340,13 +2340,9 @@ export class App extends React.Component {
                               ),
                               model.fileSizeWarning ? h("div", {className: "slds-form-element__help slds-text-color_error slds-m-left_none slds-m-top_xx-small"}, model.fileSizeWarning) : null,
                               model.availableSheets ? h("div", {className: "slds-m-top_x-small"},
-                                h("span", {className: "slds-form-element__label", htmlFor: "form-sheet-select"}, "Sheet"),
+                                h("label", {className: "slds-form-element__label", htmlFor: "form-sheet-select"}, "Sheet"),
                                 h("div", {className: "slds-form-element__control"},
-                                  h("div", {className: "slds-select_container"},
-                                    h("select", {id: "form-sheet-select", className: "slds-select", value: model.selectedSheet, onChange: this.onSheetChange, disabled: model.isWorking()},
-                                      model.availableSheets.map(sheetName => h("option", {key: sheetName, value: sheetName}, sheetName))
-                                    )
-                                  )
+                                  h(Combobox, {id: "form-sheet-select", options: model.availableSheets.map(s => ({value: s, label: s})), value: model.selectedSheet, disabled: model.isWorking(), onChange: this.onSheetChange})
                                 )
                               ) : null,
                               h("div", {id: "error-data-paste", className: "slds-form-element__help slds-text-color_error slds-m-left_none", hidden: !model.dataError}, model.dataError ? "Error: " + model.dataError : "")
