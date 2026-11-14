@@ -79,6 +79,7 @@ export class Model {
     this.bulkMessage = null;
     this.bulkError = null;
     this.greyOutSkippedColumns = localStorage.getItem("greyOutSkippedColumns") === "true";
+    this.showPasteButton = localStorage.getItem("showPasteClipboardButton") !== "false";
     this.showStatus = {
       Queued: true,
       Processing: true,
@@ -1666,6 +1667,7 @@ export class App extends React.Component {
     this.onSkipAllUnknownFieldsClick = this.onSkipAllUnknownFieldsClick.bind(this);
     this.onConfirmPopupYesClick = this.onConfirmPopupYesClick.bind(this);
     this.onConfirmPopupNoClick = this.onConfirmPopupNoClick.bind(this);
+    this.onClipboardPasteClick = this.onClipboardPasteClick.bind(this);
     this.onStartNewImportClick = this.onStartNewImportClick.bind(this);
     this.onContinuePreviousImportClick = this.onContinuePreviousImportClick.bind(this);
     this.onAbortBulkJob = this.onAbortBulkJob.bind(this);
@@ -1740,6 +1742,7 @@ export class App extends React.Component {
     model.fileSizeWarning = "";
     model.setData(text);
     if (!wasWorking) {
+      model.uploadedFileName = "";
       if (model.dataError) {
         showToast(this, "error", "Pasted data could not be loaded", "Error: " + model.dataError);
       } else {
@@ -1748,6 +1751,15 @@ export class App extends React.Component {
       }
     }
     model.didUpdate();
+  }
+
+  onClipboardPasteClick(e) {
+    e.preventDefault();
+    navigator.clipboard.readText().then(text => {
+      this.onDataPaste({clipboardData: {getData: () => text}});
+    }, () => {
+      showToast(this, "error", "Paste failed", "Could not read clipboard");
+    });
   }
   loadFileWithToast(file) {
     let {model} = this.props;
@@ -2313,7 +2325,13 @@ export class App extends React.Component {
                             h("label", {className: "slds-form-element__label", htmlFor: "data-paste"}, "Data"),
                             h("div", {className: "slds-form-element__control"},
                               h("div", {className: "slds-grid slds-grid_vertical-align-center", style: {gap: "0.5rem"}},
-                                h("textarea", {id: "data-paste", "aria-describedby": "error-data-paste", value: model.uploadedFileName || "", placeholder: "Paste data here, or\nDrop a file", onPaste: this.onDataPaste, className: model.dataError ? "slds-textarea slds-has-error" : "slds-textarea", disabled: model.isWorking(), readOnly: true, rows: 2, style: {flex: "1 1 auto", minWidth: 0, resize: "none", boxSizing: "border-box", padding: "0.5rem 0.75rem"}}),
+                                h("div", {className: "sfir-data-paste-wrapper", style: {flex: "1 1 auto"}},
+                                  h("textarea", {id: "data-paste", "aria-describedby": "error-data-paste", value: model.uploadedFileName || "", placeholder: "Paste data here, or\nDrop a file", onPaste: this.onDataPaste, className: model.dataError ? "slds-textarea slds-has-error" : "slds-textarea", disabled: model.isWorking(), readOnly: true, rows: 2, style: {boxSizing: "border-box", padding: "0.5rem 0.75rem"}}),
+                                  model.showPasteButton ? h("button", {className: "slds-button slds-button_neutral sfir-data-paste-button", onClick: this.onClipboardPasteClick, title: "Paste clipboard content", disabled: model.isWorking()},
+                                    h("svg", {className: "slds-button__icon slds-button__icon_left", "aria-hidden": "true"}, h("use", {xlinkHref: "symbols.svg#paste"})),
+                                    h("span", {className: "sfir-paste-button-text"}, "Paste")
+                                  ) : null
+                                ),
                                 h("input", {type: "file", id: "data-file-input", accept: ".csv,.txt,.json,.xlsx,.xls", style: {display: "none"}, onChange: this.onFileChange, disabled: model.isWorking()}),
                                 h("label", {htmlFor: model.isWorking() ? undefined : "data-file-input", className: "slds-button slds-button_neutral data-file-choose-button", style: model.isWorking() ? {flex: "0 0 auto", opacity: 0.5, pointerEvents: "none", cursor: "not-allowed"} : {flex: "0 0 auto"}, title: "Choose a CSV, Excel (.xlsx/.xls), or JSON file"},
                                   h("svg", {className: "slds-button__icon slds-button__icon_left"}, h("use", {xlinkHref: "symbols.svg#upload"})),
@@ -2365,7 +2383,6 @@ export class App extends React.Component {
                           )
                         ),
                       )
-
                     )
                   )
                 )),
