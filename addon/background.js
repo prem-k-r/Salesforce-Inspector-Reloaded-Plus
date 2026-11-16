@@ -97,7 +97,7 @@ chrome.commands?.onCommand.addListener((command, tab) => {
 chrome.runtime.onInstalled.addListener(async (details) => {
   if (details.reason === "install") {
     chrome.tabs.create({
-      url: "https://github.com/prem-k-r/Salesforce-Inspector-reloaded"
+      url: "https://github.com/prem-k-r/Salesforce-Inspector-Reloaded-Plus"
     });
   } else if (details.reason === "update" && details.previousVersion?.startsWith("2.0")) {
     //TODO delete clearSobjectsListCache after 2.0.1 release, only for upgrade from 2.0.0 to 2.0.1
