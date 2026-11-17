@@ -285,11 +285,6 @@ h2 {
   justify-content: center;
 }
 
-/* Toast feedback for the metadata preview must remain visible above its modal. */
-.sfir-toast-above-modal {
-  z-index: 9002;
-}
-
 .metadata-row-spinner {
   position: absolute;
   inset-inline-end: 1rem;

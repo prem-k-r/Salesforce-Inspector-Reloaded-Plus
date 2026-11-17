@@ -410,3 +410,8 @@ td:has(.slds-is-open) {
 .slds-datepicker__month tbody > tr > td {
   box-shadow: none !important;
 }
+
+/* Toast feedback must remain visible above the confirmation / error modals. */
+.sfir-toast-above-modal {
+  z-index: 9002;
+}

@@ -4,6 +4,7 @@ import {PageHeader} from "./components/PageHeader.js";
 import {UserInfoModel, copyToClipboard, formatDuration} from "./utils.js";
 import {apiStatistics, ApiStatistics} from "./api-statistics.js";
 import ConfirmModal from "./components/ConfirmModal.js";
+import Toast, {showToast} from "./components/Toast.js";
 /* global initButton */
 
 class Model {
@@ -71,12 +72,18 @@ class Model {
     this.loadStats();
   }
 
-  copyAsJson() {
+  copyAsJson(component) {
     copyToClipboard(JSON.stringify({host: this.apiHost, ...this.stats}, null, 2));
+    if (component) {
+      showToast(component, "success", "Copied to clipboard", "Statistics copied as JSON.");
+    }
   }
 
-  copyError(error) {
+  copyError(error, component) {
     copyToClipboard(formatErrorForCopy(error));
+    if (component) {
+      showToast(component, "success", "Copied to clipboard", "Error details copied.");
+    }
   }
 
   showErrors(label, matches) {
@@ -226,6 +233,7 @@ class App extends React.Component {
   constructor(props) {
     super(props);
     this.model = this.props.vm;
+    this.state = {toast: null};
     this.onResetStats = this.onResetStats.bind(this);
     this.onConfirmReset = this.onConfirmReset.bind(this);
     this.onCancelReset = this.onCancelReset.bind(this);
@@ -250,10 +258,11 @@ class App extends React.Component {
 
   onRefresh() {
     this.model.loadStats();
+    showToast(this, "success", "Refreshed", "Statistics refreshed.");
   }
 
   onCopyAsJson() {
-    this.model.copyAsJson();
+    this.model.copyAsJson(this);
   }
 
   onErrorClick(label, matches) {
@@ -472,7 +481,7 @@ class App extends React.Component {
                   h("button", {
                     type: "button",
                     className: "slds-button slds-button_neutral slds-button_small",
-                    onClick: () => this.model.copyError(error),
+                    onClick: () => this.model.copyError(error, this),
                     title: "Copy this error"
                   }, "Copy")
                 )
@@ -497,7 +506,15 @@ class App extends React.Component {
           )
         )
         )
-      )
+      ),
+      this.state.toast ? h(Toast, {
+        variant: this.state.toast.variant,
+        title: this.state.toast.title,
+        message: this.state.toast.message,
+        duration: this.state.toast.duration,
+        onClose: () => this.setState({toast: null}),
+        containerClassName: "sfir-toast-above-modal"
+      }) : null
     );
   }
 }
