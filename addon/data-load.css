@@ -190,6 +190,6 @@ button[hidden] {
   color: var(--slds-s-input-color-disabled, var(--slds-g-color-on-surface-1));
 }
 
-.slds-form-element__control .slds-input {
+.slds-form-element__control:not(:has(.slds-input__icon_left)) .slds-input:not([type="search"]) {
   padding-inline-start: var(--slds-g-spacing-3);
 }
