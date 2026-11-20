@@ -2,8 +2,9 @@
 
 ## Version 2.1
 
-- `API Debug Stats` Fix statistics being shared across all orgs by storing them separately per org, and improve the UI [feature #1477](https://github.com/tprouvot/Salesforce-Inspector-reloaded/issues/1477) (contribution by [Prem Kumar](https://github.com/prem-k-r))
+- `Popup` Display Flow record details, including Id, Name, Created, and Modified information [feature #1471](https://github.com/tprouvot/Salesforce-Inspector-reloaded/issues/1471) (contribution by [Prem Kumar](https://github.com/prem-k-r))
 - `Data Import` Add a Paste button in the data input box that reads the clipboard and loads it into the import table [feature #1475](https://github.com/tprouvot/Salesforce-Inspector-reloaded/issues/1475) (contribution by [Prem Kumar](https://github.com/prem-k-r))
+- `API Debug Stats` Fix statistics being shared across all orgs by storing them separately per org, and improve the UI [feature #1477](https://github.com/tprouvot/Salesforce-Inspector-reloaded/issues/1477) (contribution by [Prem Kumar](https://github.com/prem-k-r))
 - `User Experience` Add feedback for Popup User ID copying, and confirmation toasts for `Data Export`, `Data Import`, `Metadata Retrieve`, `Org Limits`, `Field Manager`, and `REST Explorer` copying/downloading and saved queries [feature #1469](https://github.com/tprouvot/Salesforce-Inspector-reloaded/issues/1469) (contribution by [Prem Kumar](https://github.com/prem-k-r))
 - `Metadata Retrieve` Refresh the interface with improved styling, remove the page-load overlay, adjust page height to reduce clipping and unnecessary scrolling, improve in-modal loading, fix row stripe alignment in the package.xml panel, and use DOM-based XML formatting [feature #1474](https://github.com/tprouvot/Salesforce-Inspector-reloaded/pull/1474) (contribution by [Prem Kumar](https://github.com/prem-k-r))
 - `Org Limits` Restyle the page UI, add live filtering by limit label or API name, and color gauges by consumption: gray at 0%, green below 100%, blue at 100%, and red above 100% [feature #1473](https://github.com/tprouvot/Salesforce-Inspector-reloaded/pull/1473) (contribution by [Prem Kumar](https://github.com/prem-k-r))
