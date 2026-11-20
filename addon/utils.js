@@ -777,12 +777,19 @@ export function downloadCsvFile(csvContent, filename) {
  * Downloads data as an XLSX (Excel) file using SheetJS
  * @param {Array<Array>} dataArray - 2D array of the table data
  * @param {string} filename - The filename for the downloaded file
+ * @param {string} [sheetName] - The worksheet name (optional). Falls back to filename
  */
-export function downloadXlsxFile(dataArray, filename) {
+export function downloadXlsxFile(dataArray, filename, sheetName) {
   if (typeof XLSX === 'undefined') {
     console.error("SheetJS (xlsx) library is not loaded.");
     return;
   }
+
+  // Fallback: derive the sheet name from the filename when none is provided,
+  // then trim to Excel's 31-character sheet-name limit.
+  const fallbackSheetName = String(filename || "").replace(/\.xlsx$/i, "").replace(/[\[\]:*?/\\]/g, "_");
+  const rawSheetName = (sheetName && String(sheetName).trim()) || fallbackSheetName;
+  const safeSheetName = String(rawSheetName).replace(/[\[\]:*?/\\]/g, "_").substring(0, 31) || "Exported Data";
 
   // Use a slight timeout so the main thread isn't immediately blocked.
   // This allows the browser to register the button click visually.
@@ -790,7 +797,7 @@ export function downloadXlsxFile(dataArray, filename) {
     try {
       const wb = XLSX.utils.book_new();
       const ws = XLSX.utils.aoa_to_sheet(dataArray);
-      XLSX.utils.book_append_sheet(wb, ws, "Exported Data");
+      XLSX.utils.book_append_sheet(wb, ws, safeSheetName);
       XLSX.writeFile(wb, filename);
     } catch (error) {
       console.error("Error generating XLSX file:", error);

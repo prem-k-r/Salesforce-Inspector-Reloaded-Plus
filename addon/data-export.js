@@ -788,8 +788,9 @@ class Model {
   }
   downloadAsXlsx() {
     const rawData = this.exportedData.getXlsxData();
-    const filename = `${this.exportedData.records[0]?.attributes.type}-${new Date().toLocaleDateString()}.xlsx`;
-    downloadXlsxFile(rawData, filename);
+    const objectName = this.exportedData.records[0]?.attributes.type;
+    const filename = `${objectName}-${new Date().toLocaleDateString()}.xlsx`;
+    downloadXlsxFile(rawData, filename, objectName);
   }
   deleteRecords(e) {
     let data = this.exportedData.csvSerialize(this.separator);
