@@ -1786,15 +1786,12 @@ class AllDataBoxSObject extends React.PureComponent {
     ) {
       let fields = [
         "Id",
+        isFlowVersion ? "LastModifiedById" : "LastModifiedBy.Alias",
+        isFlowVersion ? "CreatedById" : "CreatedBy.Alias",
         "CreatedDate",
         "LastModifiedDate",
         isFlowVersion ? "MasterLabel" : "Name",
       ];
-
-      // Flow versions (Tooling API) do not support the CreatedBy/LastModifiedBy Alias fields.
-      if (!isFlowVersion) {
-        fields.push("LastModifiedBy.Alias", "CreatedBy.Alias");
-      }
 
       if (supportsRegularApi && selectedValue.sobject.recordTypesSupported?.recordTypeInfos?.length > 1) {
         fields.push("RecordType.DeveloperName", "RecordType.Id");
@@ -1824,8 +1821,12 @@ class AllDataBoxSObject extends React.PureComponent {
       )
       .then((res) => {
         for (let record of res.records) {
-          this.setState({
-            recordIdDetails: this.buildRecordIdDetails(record),
+          this.getUserAliases(
+            toolingApi ? [record.CreatedById, record.LastModifiedById] : []
+          ).then((userAliases) => {
+            this.setState({
+              recordIdDetails: this.buildRecordIdDetails(record, userAliases),
+            });
           });
         }
       })
@@ -1852,7 +1853,7 @@ class AllDataBoxSObject extends React.PureComponent {
       });
   }
 
-  buildRecordIdDetails(record) {
+  buildRecordIdDetails(record, userAliases) {
     const formatDateTime = (value) => {
       const date = new Date(value);
       return date.toLocaleDateString() + " " + date.toLocaleTimeString();
@@ -1861,11 +1862,28 @@ class AllDataBoxSObject extends React.PureComponent {
       recordTypeId: record.RecordType ? record.RecordType.Id : "",
       recordName: record.Name || record.MasterLabel || "",
       recordTypeName: record.RecordType ? record.RecordType.DeveloperName : "",
-      createdBy: record.CreatedBy?.Alias || "",
-      lastModifiedBy: record.LastModifiedBy?.Alias || "",
+      createdBy: record.CreatedBy?.Alias || userAliases[record.CreatedById] || "",
+      lastModifiedBy: record.LastModifiedBy?.Alias || userAliases[record.LastModifiedById] || "",
       created: formatDateTime(record.CreatedDate),
       lastModified: formatDateTime(record.LastModifiedDate),
     };
+  }
+
+  getUserAliases(userIds) {
+    const uniqueUserIds = [...new Set(userIds.filter(Boolean))];
+    if (uniqueUserIds.length === 0) {
+      return Promise.resolve({});
+    }
+    const query = "SELECT Id, Alias FROM User WHERE Id IN ('"
+      + uniqueUserIds.join("','")
+      + "')";
+    return sfConn
+      .rest(
+        "/services/data/v" + apiVersion + "/query?q=" + encodeURIComponent(query),
+        {logErrors: false}
+      )
+      .then((res) => Object.fromEntries(res.records.map((user) => [user.Id, user.Alias])))
+      .catch(() => ({}));
   }
 
   getBestMatch(query) {
@@ -4762,8 +4780,7 @@ class AllDataRecordDetails extends React.PureComponent {
             h(
               "td",
               {},
-              recordIdDetails.created
-                + (recordIdDetails.createdBy ? " (" + recordIdDetails.createdBy + ")" : "")
+              recordIdDetails.created + " (" + recordIdDetails.createdBy + ")"
             )
           ),
           h(
@@ -4774,7 +4791,9 @@ class AllDataRecordDetails extends React.PureComponent {
               "td",
               {},
               recordIdDetails.lastModified
-                + (recordIdDetails.lastModifiedBy ? " (" + recordIdDetails.lastModifiedBy + ")" : "")
+                + " ("
+                + recordIdDetails.lastModifiedBy
+                + ")"
             )
           )
         )
