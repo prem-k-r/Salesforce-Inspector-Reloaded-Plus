@@ -532,7 +532,7 @@ class App extends React.Component {
     this.onCloseMetadataModal = this.onCloseMetadataModal.bind(this);
     this.onCopyMetadataXml = this.onCopyMetadataXml.bind(this);
     this.onDownloadMetadataXml = this.onDownloadMetadataXml.bind(this);
-    this.state = {};
+    this.state = {filterHasText: false};
     this.packageXmlHighlightGuard = createChangeGuard();
     this.modalXmlHighlightGuard = createChangeGuard();
     this.wasMetadataModalVisible = false;
@@ -777,53 +777,66 @@ class App extends React.Component {
     }
   }
   onMetadataFilterInput(e) {
+    // The input is uncontrolled: the DOM holds the text while typing, so a keystroke
+    // costs nothing. Filtering (and the re-render it triggers) runs once typing pauses.
+    const rawValue = e.target.value;
+    // Show/hide the clear button right away. setState only re-renders when the input
+    // flips between empty and non-empty, not on every keystroke.
+    const hasText = rawValue !== "";
+    if (hasText !== this.state.filterHasText) {
+      this.setState({filterHasText: hasText});
+    }
+    clearTimeout(this._filterDebounceTimer);
+    this._filterDebounceTimer = setTimeout(() => this.applyMetadataFilter(rawValue), 150);
+  }
+
+  applyMetadataFilter(rawValue) {
     let {model} = this.props;
-    const filterValue = e.target.value.toLowerCase();
+    const filterValue = rawValue.toLowerCase();
     model.metadataFilter = filterValue;
 
-    clearTimeout(this._filterDebounceTimer);
-    this._filterDebounceTimer = setTimeout(() => {
-      if (model.metadataObjects) {
-        model.metadataObjects.forEach(metadataObject => {
-          metadataObject.hidden = !metadataObject.xmlName.toLowerCase().includes(filterValue);
+    if (model.metadataObjects) {
+      model.metadataObjects.forEach(metadataObject => {
+        metadataObject.hidden = !metadataObject.xmlName.toLowerCase().includes(filterValue);
 
-          if (metadataObject.childXmlNames) {
-            // Check if any child matches the filter
-            const anyChildMatches = metadataObject.childXmlNames.some(child =>
-              child.fullName.toLowerCase().includes(filterValue)
-            );
-
-            // If any child matches, the parent should be visible
-            if (anyChildMatches) {
-              metadataObject.hidden = false;
-            }
-
-            // Update child visibility while maintaining references
-            metadataObject.childXmlNames.forEach(child => {
-              child.hidden = !child.fullName.toLowerCase().includes(filterValue);
-
-              if (child.childXmlNames) {
-                child.childXmlNames.forEach(grandchild => {
-                  grandchild.hidden = !grandchild.fullName.toLowerCase().includes(filterValue);
-                });
-              }
-            });
+        if (metadataObject.childXmlNames) {
+          // If any child matches, the parent should be visible
+          const anyChildMatches = metadataObject.childXmlNames.some(child =>
+            child.fullName.toLowerCase().includes(filterValue)
+          );
+          if (anyChildMatches) {
+            metadataObject.hidden = false;
           }
-        });
-  
-      let visibleCount = model.metadataObjects.filter(metadataObject => !metadataObject.hidden).length;
-      model.metadataFilterAnnouncement = !model.metadataFilter ? ""
+
+          // Update child visibility while maintaining references
+          metadataObject.childXmlNames.forEach(child => {
+            child.hidden = !child.fullName.toLowerCase().includes(filterValue);
+
+            if (child.childXmlNames) {
+              child.childXmlNames.forEach(grandchild => {
+                grandchild.hidden = !grandchild.fullName.toLowerCase().includes(filterValue);
+              });
+            }
+          });
+        }
+      });
+
+      const visibleCount = model.metadataObjects.filter(metadataObject => !metadataObject.hidden).length;
+      model.metadataFilterAnnouncement = !filterValue ? ""
         : visibleCount === 0 ? "No metadata types found"
         : visibleCount + " metadata type" + (visibleCount === 1 ? "" : "s") + " found";
+    }
 
-      model.didUpdate();
-      }
-    }, 150);
+    model.didUpdate();
   }
 
   onClearAndFocusFilter(e) {
     e.preventDefault();
     let {model} = this.props;
+    // Cancel any pending debounced filter so it can't re-apply the old text
+    clearTimeout(this._filterDebounceTimer);
+    this.refs.metadataFilter.value = "";
+    this.setState({filterHasText: false});
     model.metadataFilter = "";
     model.metadataFilterAnnouncement = "";
     model.metadataObjects = model.metadataObjects.map(metadataObject => ({
@@ -1036,8 +1049,8 @@ class App extends React.Component {
               h("svg", {className: "slds-icon slds-input__icon slds-input__icon_left filter-icon", "aria-hidden": "true"},
                 h("use", {xlinkHref: "symbols.svg#search"})
               ),
-              h("input", {className: "slds-input filter-input", "aria-label": "Filter metadata", disabled: model.metadataObjects?.length == 0, placeholder: "Filter", value: model.metadataFilter, onChange: this.onMetadataFilterInput, ref: "metadataFilter"}),
-              model.metadataFilter ? h("button", {type: "button", className: "slds-button slds-button_icon slds-input__icon slds-input__icon_right filter-icon filter-clear", title: "Clear filter", "aria-label": "Clear filter", onClick: this.onClearAndFocusFilter},
+              h("input", {className: "slds-input filter-input", "aria-label": "Filter metadata", disabled: model.metadataObjects?.length == 0, placeholder: "Filter", onChange: this.onMetadataFilterInput, ref: "metadataFilter"}),
+              this.state.filterHasText ? h("button", {type: "button", className: "slds-button slds-button_icon slds-input__icon slds-input__icon_right filter-icon filter-clear", title: "Clear filter", "aria-label": "Clear filter", onClick: this.onClearAndFocusFilter},
                 h("svg", {className: "slds-button__icon", "aria-hidden": "true"},
                   h("use", {xlinkHref: "symbols.svg#clear"})
                 )
